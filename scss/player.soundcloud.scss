@@ -457,6 +457,20 @@ $text_light: #969696;
     }
 }
 
+.soundcloud.customAudioPlayer.no-controls {
+    .playerTrigger {
+        cursor: default
+    }
+
+    .playerTrigger:before {
+        opacity: 0.5
+    }
+
+    .playerTrigger.songPlaying:after {
+        opacity: 0.5
+    }
+}
+
 @keyframes soundcloud_slide {
     0% {
         transform: translateX(-2em);

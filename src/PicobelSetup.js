@@ -12,8 +12,10 @@ const PicobelSetup = {
         const defaultOptions = {
             theme: 'default',
             preload: false,
+            parentElement: null,
             components: {
                 theme: 'default',
+                controls: true,
                 playPause: true,
                 progress: true,
                 volume: true,
@@ -36,6 +38,7 @@ const PicobelSetup = {
     setComponentsByTheme: (themename = 'default', rawComponents = {}) => {
         const defaultComponents = {
             theme: themename,
+            controls: true,
             playPause: true,
             progress: true,
             volume: true,

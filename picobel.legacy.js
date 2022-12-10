@@ -17,7 +17,7 @@
  * Functionality powered by Web Audio API.
  * -----------------------------------------
  */
-function Picobel(options) {
+ function Picobel(options) {
     /**
      * -----------------------
      * PARSE OPTIONS
@@ -32,6 +32,7 @@ function Picobel(options) {
     options.theme = options.theme || 'defaultPlayerTheme';
     // Setting a value for `preload` here will override the audio element's value.
     options.preload = options.preload || false;
+    options.controls = typeof options.controls !== 'undefined' ? options.controls : true;
 
     /**
      * ---------------------------------------------
@@ -46,7 +47,7 @@ function Picobel(options) {
 
     // Find all the elements and store them
     // in an array (for easy access).
-    var audioElements = findAudio();
+    var audioElements = findAudio(options.parentNode);
 
     // Get our data from those elements.
     var data = getRawData(audioElements);
@@ -55,26 +56,27 @@ function Picobel(options) {
     buildMarkup(audioElements);
 
     // Now we've placed our elements in the DOM, we can select them.
-    var wrappers = document.getElementsByClassName('customAudioPlayer');
-    var playPauseButtons = document.getElementsByClassName('playerTrigger');
-    var muteButtons = document.getElementsByClassName('songMuteButton');
-    var playPauseButtonsText = document.getElementsByClassName('buttonText');
-    var playTimer = document.getElementsByClassName('songPlayTimer');
-    var songLengthBox = document.getElementsByClassName('songDuration');
-    var titleDisplay = document.getElementsByClassName('titleDisplay');
-    var artistDisplay = document.getElementsByClassName('artistDisplay');
-    var progressBar = document.getElementsByClassName('songProgressSlider');
-    var playhead = document.getElementsByClassName('pseudoProgressPlayhead');
-    var indicator = document.getElementsByClassName('pseudoProgressIndicator');
-    var volumeControl = document.getElementsByClassName('songVolumeSlider');
-    var volumeDisplay = document.getElementsByClassName('songVolumeValue');
-    var volumeIndicator = document.getElementsByClassName('pseudoVolumeIndicator');
-    var volumePlayhead = document.getElementsByClassName('pseudoVolumePlayhead');
+    var wrappers = options.parentNode ? options.parentNode.getElementsByClassName('customAudioPlayer') : document.getElementsByClassName('customAudioPlayer');
+    var playPauseButtons = options.parentNode ? options.parentNode.getElementsByClassName('playerTrigger') : document.getElementsByClassName('playerTrigger');
+    var muteButtons = options.parentNode ? options.parentNode.getElementsByClassName('songMuteButton') : document.getElementsByClassName('songMuteButton');
+    var playPauseButtonsText = options.parentNode ? options.parentNode.getElementsByClassName('buttonText') : document.getElementsByClassName('buttonText');
+    var playTimer = options.parentNode ? options.parentNode.getElementsByClassName('songPlayTimer') : document.getElementsByClassName('songPlayTimer');
+    var songLengthBox = options.parentNode ? options.parentNode.getElementsByClassName('songDuration') : document.getElementsByClassName('songDuration');
+    var titleDisplay = options.parentNode ? options.parentNode.getElementsByClassName('titleDisplay') : document.getElementsByClassName('titleDisplay');
+    var artistDisplay = options.parentNode ? options.parentNode.getElementsByClassName('artistDisplay') : document.getElementsByClassName('artistDisplay');
+    var progressBar = options.parentNode ? options.parentNode.getElementsByClassName('songProgressSlider') : document.getElementsByClassName('songProgressSlider');
+    var playhead = options.parentNode ? options.parentNode.getElementsByClassName('pseudoProgressPlayhead') : document.getElementsByClassName('pseudoProgressPlayhead');
+    var indicator = options.parentNode ? options.parentNode.getElementsByClassName('pseudoProgressIndicator') : document.getElementsByClassName('pseudoProgressIndicator');
+    var volumeControl = options.parentNode ? options.parentNode.getElementsByClassName('songVolumeSlider') : document.getElementsByClassName('songVolumeSlider');
+    var volumeDisplay = options.parentNode ? options.parentNode.getElementsByClassName('songVolumeValue') : document.getElementsByClassName('songVolumeValue');
+    var volumeIndicator = options.parentNode ? options.parentNode.getElementsByClassName('pseudoVolumeIndicator') : document.getElementsByClassName('pseudoVolumeIndicator');
+    var volumePlayhead = options.parentNode ? options.parentNode.getElementsByClassName('pseudoVolumePlayhead') : document.getElementsByClassName('pseudoVolumePlayhead');
+    var audioStatusDisplay = options.parentNode ? options.parentNode.getElementsByClassName('audioStatus') : document.getElementsByClassName('audioStatus');
 
     // Initialize the audio.
     var myAudio = initAudio(data);
 
-    console.log('myAudio', myAudio);
+    // console.log('myAudio', myAudio);
 
     // Create a var to store the index of the file currently
     // being played (defaulting to the first track in the DOM)
@@ -91,9 +93,9 @@ function Picobel(options) {
      */
 
     // Return an array of all the <audio> elements found on the page.
-    function findAudio() {
+    function findAudio(parentNode) {
         // Get all the <audio> occurrences in the page.
-        var audioElements = document.getElementsByTagName('audio');
+        var audioElements = parentNode ? parentNode.getElementsByTagName('audio') : document.getElementsByTagName('audio');
         // Save our audioElements as an array (so
         // we can manipulate the DOM but still
         // access our items).
@@ -108,9 +110,10 @@ function Picobel(options) {
         var output = _data.map(function(item) {
             return {
                 preload: options.preload ? options.preload : item.preload,
-                url: item.src
+                url: item.getElementsByTagName('source')[0] ? item.getElementsByTagName('source')[0].src : item.src
             };
         });
+        
         return output;
     }
 
@@ -119,7 +122,7 @@ function Picobel(options) {
         for (var i = 0; i < _data.length; i++) {
             // Create a container for our new player
             var newPlayer = document.createElement('div');
-            newPlayer.className = 'customAudioPlayer loading player_' + i;
+            newPlayer.className = (options.controls ? 'customAudioPlayer loading player_' : 'customAudioPlayer no-controls loading player_') + i;
             // If the element has a valid class, add that to the player's wrapper
             var className = audioElements[i].className;
             if (className !== '') {
@@ -148,15 +151,20 @@ function Picobel(options) {
             var meta = document.createElement('div');
             meta.className = 'metaWrapper';
 
-            // Create elements to display file metadata
-            var meta_title = document.createElement('span');
-            meta_title.className = 'titleDisplay';
-            meta_title.innerHTML = 'File ' + (i + 1);
-            meta.appendChild(meta_title);
+            // Add audio status
+            var meta_status = document.createElement('div');
+            meta_status.className = 'audioStatus';
+            meta.appendChild(meta_status);
 
-            var meta_artist = document.createElement('span');
-            meta_artist.className = 'artistDisplay';
-            meta.appendChild(meta_artist);
+            // Create elements to display file metadata
+            // var meta_title = document.createElement('span');
+            // meta_title.className = 'titleDisplay';
+            // meta_title.innerHTML = 'File ' + (i + 1);
+            // meta.appendChild(meta_title);
+
+            // var meta_artist = document.createElement('span');
+            // meta_artist.className = 'artistDisplay';
+            // meta.appendChild(meta_artist);
 
             var timings = document.createElement('div');
             timings.className = 'timingsWrapper';
@@ -281,8 +289,10 @@ function Picobel(options) {
             node.addEventListener('waiting', _errors, false);
             node.addEventListener('progress', _progress, false);
 
-            playPauseButtons[key].addEventListener('click', _playPauseAudio, false);
-            progressBar[key].addEventListener('input', sliderScrub, false);
+            if (options.controls){
+                playPauseButtons[key].addEventListener('click', _playPauseAudio, false);
+                progressBar[key].addEventListener('input', sliderScrub, false);
+            }
             volumeControl[key].addEventListener('input', volume, false);
             muteButtons[key].addEventListener('click', _muteUnmuteAudio, false);
 
@@ -318,6 +328,8 @@ function Picobel(options) {
 
     // Get info about the audio track, and update the display with this info
     function _getMeta(i) {
+        if (titleDisplay.length <= i)
+            return;
         // Get the filename and type
         var url = myAudio[i].src;
         var fileType = _getFileType(url);
@@ -440,12 +452,35 @@ function Picobel(options) {
             _addClass(target, 'songPlaying');
             _removeClass(target, 'songPaused');
             buttonText.innerHTML = 'pause';
+            updateAudioStatus(index, 'Playing');
         } else {
             pauseAll();
             _removeClass(target, 'songPlaying');
             _addClass(target, 'songPaused');
             buttonText.innerHTML = 'play';
+            updateAudioStatus(index, '');
         }
+    }
+
+    function toggleControls(index, state) {
+        if (state){
+            playPauseButtons[index].addEventListener('click', _playPauseAudio, false);
+            progressBar[index].addEventListener('input', sliderScrub, false);
+            _removeClass(wrappers[index], 'no-controls');
+        }
+        else {
+            playPauseButtons[index].removeEventListener('click', _playPauseAudio, false);
+            progressBar[index].removeEventListener('input', sliderScrub, false);
+            _addClass(wrappers[index], 'no-controls');
+        }
+    }
+
+    function seekTo(index, time) {
+        myAudio[index].currentTime = 0;
+    }
+
+    function updateAudioStatus(index, status){
+        audioStatusDisplay[index].innerHTML = status;
     }
 
     // Toggle 'play' and 'pause' for a track
@@ -641,6 +676,10 @@ function Picobel(options) {
     return {
         sliderScrub: sliderScrub,
         playSong: playSong,
-        pauseAll: pauseAll
+        pauseAll: pauseAll,
+        playPause: playPause,
+        toggleControls: toggleControls,
+        seekTo: seekTo,
+        updateAudioStatus: updateAudioStatus
     };
 }

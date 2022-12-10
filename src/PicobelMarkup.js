@@ -64,7 +64,7 @@ export const PicobelMarkup = {
             const newPlayer = PicobelMarkup.createElement('div');
 
             // Set the relevant classes on the new player element
-            const classes = PicobelData.prepareClasses(node.key, node.className, components.theme);
+            const classes = PicobelData.prepareClasses(node.key, node.className, components.theme, components.controls);
             newPlayer.classList.add(...classes);
 
             // Set song index attribute

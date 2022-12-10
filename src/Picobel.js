@@ -62,12 +62,14 @@ function Picobel(rawOptions = {}) {
             node.addEventListener('progress', PicobelAudio.progress, false);
 
             // DOM interaction event listeners
-            node.elements.playPauseButton[0].addEventListener(
-                'click',
-                PicobelAudio.triggerPlayPauseAudio,
-                false
-            );
-            node.elements.progressBar[0].addEventListener('input', PicobelAudio.sliderScrub, false);
+            if (state.components.controls){
+                node.elements.playPauseButton[0].addEventListener(
+                    'click',
+                    PicobelAudio.triggerPlayPauseAudio,
+                    false
+                );
+                node.elements.progressBar[0].addEventListener('input', PicobelAudio.sliderScrub, false);
+            }
             node.elements.volumeControl[0].addEventListener('input', PicobelAudio.volume, false);
             node.elements.muteButton[0].addEventListener(
                 'click',
@@ -192,6 +194,25 @@ function Picobel(rawOptions = {}) {
                 button.classList.add('songUnmuted');
                 button.innerHTML = 'mute';
             }
+        },
+        toggleControls: (node, state) => {
+            if (state){
+                node.elements.playPauseButton[0].addEventListener(
+                    'click',
+                    PicobelAudio.triggerPlayPauseAudio,
+                    false
+                );
+                node.elements.progressBar[0].addEventListener('input', PicobelAudio.sliderScrub, false);
+                node.elements.wrapper.classList.remove('no-controls');
+            }
+            else {
+                node.elements.playPauseButton[0].removeEventListener('click');
+                node.elements.progressBar[0].removeEventListener('input');
+                node.elements.wrapper.classList.add('no-controls');
+            }
+        },
+        seekTo: (node, time) => {
+            node.element.currentTime = time;
         }
     };
 
@@ -199,7 +220,7 @@ function Picobel(rawOptions = {}) {
     state.components = PicobelSetup.setComponentsByTheme(state.theme, rawOptions.components);
 
     // Get audio elements from page, and save their details to state.
-    state.audioNodes = PicobelData.findAudio();
+    state.audioNodes = PicobelData.findAudio(rawOptions.parentElement);
 
     state.audioNodes = PicobelData.getRawData(state.audioNodes);
 

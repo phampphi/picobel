@@ -2,9 +2,9 @@ import _helpers from './helpers';
 
 const PicobelData = {
     // Return an array of all the <audio> elements found on the page.
-    findAudio: () => {
+    findAudio: (parentElement) => {
         // Get all the <audio> occurrences in the page.
-        let audioElements = document.getElementsByTagName('audio');
+        let audioElements = parentElement ? parentElement.getElementsByTagName('audio') : document.getElementsByTagName('audio');
         // Save our audioElements as an array (so we can manipulate the DOM but
         // still access our items).
         let items = [].slice.call(audioElements);
@@ -12,10 +12,12 @@ const PicobelData = {
     },
 
     // Build an array of classes to add to each new "player" element
-    prepareClasses: (index, classes, theme) => {
+    prepareClasses: (index, classes, theme, controls) => {
         const classesString = `customAudioPlayer loading player_${index} ${classes}`;
         const classesArray = classesString.trim().split(' ');
         classesArray.push(theme);
+        if (!controls) classesArray.push('no-controls');
+        
         return classesArray;
     },
 
